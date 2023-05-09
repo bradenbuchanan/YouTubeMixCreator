@@ -36,11 +36,39 @@ def extract_audio(video_path, output_path2, video_title):
     subprocess.run(command, shell=True, check=True)
 
 urls = [
-    'https://www.youtube.com/watch?v=7810tcWqzcc',
-    'https://www.youtube.com/watch?v=tlecTxx335U&ab_channel=ChristianL%C3%B6ffler-Topic',
-    'https://www.youtube.com/watch?v=vM0QTlrTpUA&ab_channel=ThisNeverHappened'
-    # Add more song URLs here
-]
+    'https://www.youtube.com/watch?v=QyGpkd477-Y', #Only you
+    'https://www.youtube.com/watch?v=j95-HloCj_o', #do you feel the same?
+    'https://www.youtube.com/watch?v=opXR8laenl8', #ocula - clear (extended mix)
+    'https://www.youtube.com/watch?v=-1Q-Ple93D4', #on the run - ocula
+    'https://www.youtube.com/watch?v=r4qI_2ZA8Gc', #not alone - ocula remix
+    'https://www.youtube.com/watch?v=MvKgfk2XToo', #feel around you ocula remix
+    'https://www.youtube.com/watch?v=3aSVdptdcSU', #come around - ocula
+    'https://www.youtube.com/watch?v=94QDU3leasg', #waves - ocula remix
+    'https://www.youtube.com/watch?v=8GtiWHNbL14', #try me ocula
+    'https://www.youtube.com/watch?v=26y8g7KQaTs', #be there - ocula
+    'https://www.youtube.com/watch?v=V0uyIMevop8', #green willow - ocula
+    'https://www.youtube.com/watch?v=qDgvrEZR5_0', #closer to the edge
+    'https://www.youtube.com/watch?v=udqh_P0q2-Y', #empirical ocula
+    'https://www.youtube.com/watch?v=ZYk0ayxtGSI', #one more time - ocula remix
+    'https://www.youtube.com/watch?v=oxc0dRbdgzw', #rise - ocula
+    'https://www.youtube.com/watch?v=ilHCTOZFNEQ', #tephra ocula
+    'https://www.youtube.com/watch?v=IvLy3C0iPig', #years on end - extended mix
+    'https://www.youtube.com/watch?v=0rG3R58kQ98', #home away from home
+    'https://www.youtube.com/watch?v=CvxbSokNsJA', #no logic
+    'https://www.youtube.com/watch?v=Eadahopy8Vs', #no borders
+    'https://www.youtube.com/watch?v=MFLYELJLhR0', #the last turn
+    'https://www.youtube.com/watch?v=lx83eZV7oIg', #what remains
+    'https://www.youtube.com/watch?v=m_UWBJVlQ7M', #renaissance
+    'https://www.youtube.com/watch?v=HYobBsfcpR4', #summit
+    'https://www.youtube.com/watch?v=7gJl-BxyO0I', #if only (you could be here)
+  ]
+
+#Write time stamps
+def write_timestamps_to_file(sanitized_titles, timestamps, output_path):
+    with open(output_path, 'w') as f:
+        for title, timestamp in zip(sanitized_titles, timestamps):
+            f.write(f"Title: {title}, Start Time: {timestamp / 1000.0} seconds\n")
+ 
 
 output_path = '/Users/bradenbuchanan/Documents/pythonProgramming/youtubeMixer/output'
 
@@ -53,6 +81,11 @@ for url in urls:
 
     extract_audio(video_path, output_path, video_title)
 
+# writing time stamps
+def write_timestamps_to_file(sanitized_titles, timestamps, output_path):
+    with open(output_path, 'w') as f:
+        for title, timestamp in zip(sanitized_titles, timestamps):
+            f.write(f"Title: {title}, Start Time: {timestamp / 1000.0} seconds\n")
 
 # Mix audio of files
 from pydub import AudioSegment
@@ -71,4 +104,29 @@ audio_paths = [os.path.join(output_path, f'{title}.m4a') for title in sanitized_
 output_path = '/Users/bradenbuchanan/Documents/pythonProgramming/youtubeMixer/output/mixed_audio.m4a'
 
 # Call the modified function with the desired crossfade duration in milliseconds (e.g., 15000 ms = 15 seconds)
-mix_audios_with_crossfade(audio_paths, output_path, crossfade_duration=20000)
+mix_audios_with_crossfade(audio_paths, output_path, crossfade_duration=23000)
+
+
+# Calculate timestamps based on durations
+durations = []
+timestamps = [0]  # Start timestamp for first song is 0
+
+for title in sanitized_titles:
+    audio_path = os.path.join('/Users/bradenbuchanan/Documents/pythonProgramming/youtubeMixer/output', f"{title}.m4a")
+    audio = AudioSegment.from_file(audio_path, format="m4a")
+    durations.append(len(audio))
+
+for i in range(1, len(durations)):
+    # Update timestamp with duration of the current song plus crossfade time which is subtracted because it is shared between two songs
+    timestamps.append(timestamps[i-1] + durations[i-1] - 23000)
+
+#converts seconds to minutes and seconds during file export
+# def write_timestamps_to_file(sanitized_titles, timestamps, output_path):
+#     with open(output_path, 'w') as f:
+#         for title, timestamp in zip(sanitized_titles, timestamps):
+#             minutes, seconds = divmod(timestamp / 1000.0, 60)
+#             f.write(f"Title: {title}, Start Time: {int(minutes)} minutes {seconds:.3f} seconds\n")
+
+# Writing timestamps to a text file
+timestamps_output_path = '/Users/bradenbuchanan/Documents/pythonProgramming/youtubeMixer/output/timestamps.txt'
+write_timestamps_to_file(sanitized_titles, timestamps, timestamps_output_path)
